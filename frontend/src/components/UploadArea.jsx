@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { UploadCloud, Loader2 } from "lucide-react";
+const API_BASE = "https://memorygpt.onrender.com";
 
 export default function UploadPanel({ onComplete }) {
   const [uploading, setUploading] = useState(false);
@@ -13,7 +14,7 @@ export default function UploadPanel({ onComplete }) {
     files.forEach((f) => formData.append("file", f));
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/upload", {
+      const res = await fetch(`${API_BASE}/api/upload`, {
         method: "POST",
         body: formData,
       });
