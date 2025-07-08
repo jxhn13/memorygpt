@@ -4,7 +4,7 @@ from api.upload import upload_bp
 from api.chat import chat_bp
 
 app = Flask(__name__)
-CORS(app)  # ✅ Enable CORS for all routes
+CORS(app, origins=["https://memorygpt.vercel.app"])
 
 # Register blueprints
 app.register_blueprint(upload_bp, url_prefix="/api")
