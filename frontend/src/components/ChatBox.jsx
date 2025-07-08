@@ -1,6 +1,7 @@
 // src/components/ChatBox.jsx
 import React, { useState } from "react";
 import axios from "axios";
+const API_BASE = "https://memorygpt.onrender.com";
 
 export default function ChatBox() {
   const [query, setQuery] = useState("");
@@ -16,7 +17,7 @@ export default function ChatBox() {
   setIsThinking(true);  // show neuron animation
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/chat", {
+    const res = await fetch(`${API_BASE}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, history: [] }),
