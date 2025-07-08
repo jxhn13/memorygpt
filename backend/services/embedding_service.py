@@ -1,5 +1,4 @@
 import os
-import spacy
 from langchain_community.vectorstores import FAISS
 from langchain_cohere import CohereEmbeddings
 from config import config
