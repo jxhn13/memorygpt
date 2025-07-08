@@ -4,7 +4,10 @@ from langchain_community.vectorstores import FAISS
 from langchain_cohere import CohereEmbeddings
 from config import config
 
-nlp = spacy.load("en_core_web_sm")
+import cohere
+
+co = cohere.Client(os.getenv("COHERE_API_KEY"))
+
 
 embedding_model = CohereEmbeddings(
     model=config.EMBEDDING_MODEL,
@@ -13,12 +16,23 @@ embedding_model = CohereEmbeddings(
 
 # ✅ Tag extractor
 def extract_tags(text):
-    doc = nlp(text)
-    tags = set()
-    for ent in doc.ents:
-        if ent.label_ in {"ORG", "PRODUCT", "PERSON", "GPE", "EVENT", "WORK_OF_ART", "TECH"}:
-            tags.add(ent.text.strip())
-    return list(tags)
+    prompt = (
+        "Extract important named entities or tags from the text below. "
+        "Tags can include names of people, companies, technologies, locations, products, or events. "
+        "Return only a comma-separated list of tags.\n\n"
+        f"Text: {text}\n\nTags:"
+    )
+
+    response = co.generate(
+        model="command",
+        prompt=prompt,
+        max_tokens=60,
+        temperature=0.3,
+    )
+
+    raw_output = response.generations[0].text.strip()
+    tags = [tag.strip() for tag in raw_output.split(",") if tag.strip()]
+    return list(set(tags))
 
 # ✅ Load existing FAISS index (used for querying)
 def load_vectorstore():
