@@ -14,3 +14,4 @@ unstructured
 pandas
 html2text
 langchain-community
+matplotlib
