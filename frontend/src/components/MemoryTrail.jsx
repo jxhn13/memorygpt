@@ -1,5 +1,6 @@
 // components/MemoryTrail.jsx
 import React, { useState, useEffect } from "react";
+const API_BASE = "https://memorygpt.onrender.com"; 
 
 export default function MemoryTrail({ refresh }) {
   const [memories, setMemories] = useState([]);
@@ -8,7 +9,7 @@ export default function MemoryTrail({ refresh }) {
   useEffect(() => {
     const fetchMemories = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/memory");
+        const res = await fetch(`${API_BASE}/api/memory`);
         const data = await res.json();
         if (Array.isArray(data)) {
           const sorted = data
