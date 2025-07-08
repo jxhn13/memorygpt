@@ -1,9 +1,26 @@
+# Core Flask App
 flask
+flask-cors
+python-dotenv
+
+# LLM + RAG
 openai
+cohere
 langchain
+langchain-community
 faiss-cpu
 tiktoken
-python-dotenv
+
+# PDF & DOCX Parsing
 PyPDF2
 pymupdf
-flask-cors
+python-docx
+
+# Unstructured Document Parsing
+unstructured
+pandas
+html2text
+
+# Optional: For semantic tag extraction
+spacy
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
