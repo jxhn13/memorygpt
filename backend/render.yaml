@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: memorygpt-backend
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
+    envVars:
+      - key: COHERE_API_KEY
+        value: xm489t50HzglJOHDieu8iZIzsk0pPU2UtBgAQxZ2
