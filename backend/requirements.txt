@@ -1,0 +1,9 @@
+flask
+openai
+langchain
+faiss-cpu
+tiktoken
+python-dotenv
+PyPDF2
+pymupdf
+flask-cors
