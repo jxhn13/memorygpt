@@ -4,6 +4,7 @@ import UploadPanel from "../components/UploadArea";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import NeuronPulse from "../components/NeuronPulse";
 import MemoryTrail from "../components/MemoryTrail";
+const API_BASE = "https://memorygpt.onrender.com";
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
@@ -33,7 +34,7 @@ export default function Home() {
   setIsThinking(true);
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/chat", {
+    const res = await fetch(`${API_BASE}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, history: [] }),
@@ -57,7 +58,7 @@ export default function Home() {
 
   const handleDelete = async (filename) => {
     try {
-      const res = await fetch("http://localhost:5000/api/delete-file", {
+      const res = await fetch(`${API_BASE}/api/delete-file`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename }),
@@ -76,7 +77,7 @@ export default function Home() {
   };
   const handleMemoryClear = async () => {
   try {
-    const res = await fetch("http://localhost:5000/api/clear-memory", {
+    const res = await fetch(`${API_BASE}/api/clear-memory`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
