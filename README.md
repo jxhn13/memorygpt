@@ -1,34 +1,11 @@
-Great! Here's a clean, professional `README.md` template for your **MemoryGPT** project. It includes:
 
-* ✅ Project Overview
-* 🚀 Live Demo
-* 🛠️ Tech Stack
-* 📦 Installation
-* 💻 Local Development
-* 🧠 Features
-* 🧪 API Routes
-* 🐳 Deployment (Render & Vercel)
-* 🧩 Folder Structure
-* 🙋‍♂️ Contributors
-* ⚖️ License
-
----
-
-### ✅ `README.md` for MemoryGPT
-
-````markdown
 # 🧠 MemoryGPT
 
 A conversational memory-augmented AI system that allows users to upload documents and query them in real-time — where your queries live forever.
 
 ---
 
-## 🌐 Live Demo
 
-Frontend (Vercel): [https://memorygpt.vercel.app](https://memorygpt.vercel.app)  
-Backend (Render): [https://memorygpt.onrender.com](https://memorygpt.onrender.com)
-
----
 
 ## 🛠 Tech Stack
 
