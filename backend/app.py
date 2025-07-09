@@ -33,7 +33,8 @@ def preload_documents(folder="static/default_docs"):
 
 # ✅ Flask App
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://memorygpt.vercel.app"])
+
 
 # Register blueprints
 app.register_blueprint(upload_bp, url_prefix="/api")
