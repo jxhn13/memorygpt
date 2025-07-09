@@ -6,4 +6,6 @@ services:
     startCommand: "python app.py"
     envVars:
       - key: COHERE_API_KEY
-        value: xm489t50HzglJOHDieu8iZIzsk0pPU2UtBgAQxZ2
+        value: EnCwdyNKdM2pGQvKESLMMBnphAyQefwFtKVT6LQo
+      - key: PORT
+        value: 5000
