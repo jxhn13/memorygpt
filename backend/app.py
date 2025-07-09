@@ -22,9 +22,7 @@ app.register_blueprint(chat_bp, url_prefix="/api")
 @app.route("/")
 def index():
     return {"message": "MemoryGPT Backend is running"}
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Render provides PORT
+    port = int(os.environ.get("PORT", 5000))
     app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
-    print(f"🚀 Starting MemoryGPT backend on port {port}...")
     app.run(host="0.0.0.0", port=port)
