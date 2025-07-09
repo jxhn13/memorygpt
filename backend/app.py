@@ -46,9 +46,9 @@ def index():
 
 if __name__ == "__main__":
     from waitress import serve
-    preload_documents()
     port = int(os.environ.get("PORT", 5000))
-    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Flask side
-    serve(app, host="0.0.0.0", port=port, max_request_body_size=1024*1024*100)  # Waitress side
+    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
+    serve(app, host="0.0.0.0", port=port)
+
 
 
