@@ -48,6 +48,7 @@ if __name__ == "__main__":
     from waitress import serve
     port = int(os.environ.get("PORT", 5000))
     app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
+    print(f"🚀 Starting MemoryGPT backend on port {port}...")
     serve(app, host="0.0.0.0", port=port)
 
 
