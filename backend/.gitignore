@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+chat_memory.json
+vector_store/
+static/default_docs/
+venv/

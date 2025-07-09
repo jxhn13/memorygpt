@@ -11,109 +11,110 @@ import os
 chat_bp = Blueprint("chat", __name__)
 MEMORY_LOG = "chat_memory.json"
 
-# 🔹 RAG Chat Endpoint
+# 🔹 Chat API with RAG + Memory
 @chat_bp.route("/chat", methods=["POST"])
 def chat():
     try:
         data = request.get_json(force=True)
-        query = data.get("query", "")
+        query = data.get("query", "").strip()
         chat_history = data.get("history", [])
         session_id = data.get("session_id", "default")
 
         if not query:
             return jsonify({"error": "Query is required"}), 400
 
-        # 🧠 Check for similar past question
+        # 🧠 Check for similar past queries
         past = find_similar_question(query, session_id)
         if past:
             return jsonify({
                 "response": f"🧠 You asked a similar question before:\nQ: {past['query']}\nA: {past['answer']}",
-                "sources": past.get("sources", [])
+                "sources": past.get("sources", []),
+                "type": "memory"
             })
 
-        # 🔍 Get answer from RAG pipeline
+        # 🔍 Run RAG pipeline
         result = answer_query(query, chat_history)
 
         if not result or "answer" not in result:
             return jsonify({"response": "⚠️ No answer could be generated.", "sources": []}), 500
 
-        # 📁 Prepare sources
-        sources = []
-        for doc in result.get("source_documents", []):
-            sources.append({
+        # 📄 Format sources
+        sources = [
+            {
                 "source": doc.metadata.get("source", "unknown"),
                 "page": doc.metadata.get("page", None),
                 "snippet": doc.page_content[:200],
                 "tags": doc.metadata.get("tags", [])
-            })
+            }
+            for doc in result.get("source_documents", [])
+        ]
 
-        # 💾 Save memory
-        save_memory(query, result.get("answer"), sources, session_id=session_id)
+        # 💾 Save to memory
+        save_memory(query, result["answer"], sources, session_id=session_id)
         get_last_context(session_id=session_id)
 
-        # 📊 Return chart if visual query
+        # 📊 If visual query
         if is_visual_query(query):
-            structured_data = result.get("chart_data", {})
-            image_base64 = plot_chart(structured_data)
+            chart_data = result.get("chart_data", {})
+            image_base64 = plot_chart(chart_data)
             return jsonify({
-                "response": "Here's your visualization",
+                "response": "📊 Here's your visualization.",
                 "chart": image_base64,
                 "sources": sources,
                 "type": "visual"
             })
 
-        # 📝 Return text response
+        # 📝 Text response
         return jsonify({
-            "response": result.get("answer"),
+            "response": result["answer"],
             "sources": sources,
             "type": "text"
         })
 
     except Exception as e:
+        print(f"🔥 Chat error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-# 🧠 Memory Trail Fetch Endpoint
+# 🧠 Get Memory Trail
 @chat_bp.route("/memory", methods=["GET"])
 def get_memory():
-    if not os.path.exists(MEMORY_LOG):
-        return jsonify([])
-
     try:
+        if not os.path.exists(MEMORY_LOG):
+            return jsonify([])
         with open(MEMORY_LOG, "r") as f:
-            memory_data = json.load(f)
-            return jsonify(memory_data)
-    except json.JSONDecodeError:
-        return jsonify([])
+            return jsonify(json.load(f))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
-# 🗑 Clear Memory Endpoint
+# 🧹 Clear Memory
 @chat_bp.route("/clear-memory", methods=["POST"])
 def clear_memory():
     try:
         with open(MEMORY_LOG, "w") as f:
             f.write("[]")
-        return jsonify({"message": "Memory trail cleared."})
+        return jsonify({"message": "✅ Memory trail cleared."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# 🗃 Delete Uploaded File Endpoint
+# 🗃 Delete Uploaded File
 @chat_bp.route("/delete-file", methods=["POST"])
 def delete_file():
-    data = request.get_json()
-    filename = data.get("filename")
-
-    if not filename:
-        return jsonify({"error": "Filename required"}), 400
-
-    filepath = os.path.join(config.UPLOAD_FOLDER, filename)
-
     try:
+        data = request.get_json()
+        filename = data.get("filename", "").strip()
+
+        if not filename:
+            return jsonify({"error": "Filename is required"}), 400
+
+        filepath = os.path.join(config.UPLOAD_FOLDER, filename)
+
         if os.path.exists(filepath):
             os.remove(filepath)
-            return jsonify({"message": f"{filename} deleted successfully."}), 200
+            return jsonify({"message": f"✅ {filename} deleted successfully."})
         else:
-            return jsonify({"error": "File not found"}), 404
+            return jsonify({"error": "❌ File not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500

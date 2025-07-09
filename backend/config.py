@@ -19,5 +19,6 @@ class Config:
     VECTORSTORE_PATH = "vector_store/faiss_index"
     UPLOAD_FOLDER = "./uploads"
     ALLOWED_EXTENSIONS = {"pdf", "docx", "txt"}
+    MAX_CONTENT_LENGTH = 100 * 1024 * 1024 
 
 config = Config()

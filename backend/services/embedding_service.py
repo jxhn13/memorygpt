@@ -1,86 +1,73 @@
 import os
+from config import config
 from langchain_community.vectorstores import FAISS
 from langchain_cohere import CohereEmbeddings
-from config import config
+from langchain.schema import Document
+from keybert import KeyBERT
 
-import cohere
+kw_model = KeyBERT()
 
-co = cohere.Client(os.getenv("COHERE_API_KEY"))
-
-
+# ✅ Setup embedding model with Cohere (only for vector embedding)
 embedding_model = CohereEmbeddings(
-    model=config.EMBEDDING_MODEL,
+    model=config.EMBEDDING_MODEL,  # e.g., "embed-english-light-v3.0"
     cohere_api_key=os.getenv("COHERE_API_KEY")
 )
 
-# ✅ Tag extractor
-def extract_tags(text):
-    prompt = (
-        "Extract important named entities or tags from the text below. "
-        "Tags can include names of people, companies, technologies, locations, products, or events. "
-        "Return only a comma-separated list of tags.\n\n"
-        f"Text: {text}\n\nTags:"
-    )
+# ✅ Local tag extraction using KeyBERT
+def extract_tags(text: str) -> list[str]:
+    try:
+        keywords = kw_model.extract_keywords(text, top_n=5)
+        return [kw for kw, _ in keywords]
+    except Exception as e:
+        print("❌ Local tag extraction failed:", e)
+        return []
 
-    response = co.generate(
-        model="command",
-        prompt=prompt,
-        max_tokens=60,
-        temperature=0.3,
-    )
-
-    raw_output = response.generations[0].text.strip()
-    tags = [tag.strip() for tag in raw_output.split(",") if tag.strip()]
-    return list(set(tags))
-
-# ✅ Load existing FAISS index (used for querying)
+# ✅ Load vectorstore from disk
 def load_vectorstore():
     path = config.VECTORSTORE_PATH
-    faiss_file = os.path.join(path, "index.faiss")
-    meta_file = os.path.join(path, "index.pkl")
-
-    if os.path.exists(faiss_file) and os.path.exists(meta_file):
-        print("✅ Vectorstore found and loaded.")
+    if os.path.exists(os.path.join(path, "index.faiss")) and os.path.exists(os.path.join(path, "index.pkl")):
+        print("✅ Vectorstore loaded.")
         return FAISS.load_local(path, embedding_model, allow_dangerous_deserialization=True)
-    else:
-        print("⚠️ Vectorstore files not found.")
-        return None
+    print("⚠️ No vectorstore found.")
+    return None
 
-def get_vectorstore(docs):
+# ✅ Create or update vectorstore
+def get_vectorstore(documents: list[Document]):
     path = config.VECTORSTORE_PATH
-    faiss_file = os.path.join(path, "index.faiss")
-
     os.makedirs(path, exist_ok=True)
 
-    if os.path.exists(faiss_file):
+    faiss_exists = os.path.exists(os.path.join(path, "index.faiss"))
+
+    if faiss_exists:
         index = FAISS.load_local(path, embedding_model, allow_dangerous_deserialization=True)
-        new_index = FAISS.from_documents(docs, embedding_model)
+        new_index = FAISS.from_documents(documents, embedding_model)
         index.merge_from(new_index)
     else:
-        index = FAISS.from_documents(docs, embedding_model)
+        index = FAISS.from_documents(documents, embedding_model)
 
     index.save_local(path)
     return index
 
-# ✅ Embed and store new docs with metadata
-def embed_and_store(documents, metadata):
+# ✅ Embed and store documents with metadata + tags
+def embed_and_store(documents: list[Document], metadata: dict = {}):
     if not documents:
         print("⚠️ No documents to embed.")
-        return None
+        return
 
-    new_docs = []
+    valid_docs = []
     for doc in documents:
-        if not hasattr(doc, "page_content") or not doc.page_content.strip():
+        content = getattr(doc, "page_content", "").strip()
+        if not content:
             continue
 
-        tags = extract_tags(doc.page_content)
+        tags = extract_tags(content)
         doc.metadata.update(metadata)
         doc.metadata["tags"] = tags
-        new_docs.append(doc)
+        valid_docs.append(doc)
 
-    if not new_docs:
-        print("⚠️ No valid documents to embed.")
-        return None
+    if not valid_docs:
+        print("⚠️ No valid chunks to embed.")
+        return
 
-    get_vectorstore(new_docs)
-    print(f"✅ {len(new_docs)} documents embedded and FAISS vectorstore updated.")
+    get_vectorstore(valid_docs)
+    print(f"✅ {len(valid_docs)} documents embedded and stored in FAISS.")

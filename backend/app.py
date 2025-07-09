@@ -33,7 +33,7 @@ def preload_documents(folder="static/default_docs"):
 
 # ✅ Flask App
 app = Flask(__name__)
-CORS(app, origins=["https://memorygpt.vercel.app"])
+CORS(app)
 
 # Register blueprints
 app.register_blueprint(upload_bp, url_prefix="/api")
@@ -44,6 +44,10 @@ def index():
     return {"message": "MemoryGPT Backend is running"}
 
 if __name__ == "__main__":
-    preload_documents()  # ✅ Preload once on server startup
+    from waitress import serve
+    preload_documents()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Flask side
+    serve(app, host="0.0.0.0", port=port, max_request_body_size=1024*1024*100)  # Waitress side
+
+

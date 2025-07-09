@@ -1,27 +1,16 @@
 import re
 
-def clean_text(text: str) -> str:
-    """
-    Removes excessive whitespace, non-ASCII characters, etc.
-    """
-    text = text.encode("ascii", errors="ignore").decode()
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+# 🔹 Define simple rules to detect visual intent in the query
+def is_visual_query(query: str) -> bool:
+    visual_keywords = [
+        "chart", "plot", "graph", "trend", "visualize",
+        "show distribution", "bar chart", "pie chart", "line graph",
+        "statistics over time", "time series", "data chart"
+    ]
 
-def allowed_file(filename, allowed_extensions):
-    """
-    Checks if file is an allowed upload type.
-    """
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+    query = query.lower()
+    return any(keyword in query for keyword in visual_keywords)
 
-def summarize_metadata(doc):
-    """
-    Returns a compact summary of doc metadata for logging/UI.
-    """
-    source = doc.metadata.get("source", "unknown")
-    page = doc.metadata.get("page", "N/A")
-    timestamp = doc.metadata.get("timestamp", "N/A")
-    return f"{source} (Page: {page}, Time: {timestamp})"
-def is_visual_query(text):
-    keywords = ["chart", "graph", "plot", "visualize", "draw"]
-    return any(kw in text.lower() for kw in keywords)
+# Optional utility — clean text or file names (extend as needed)
+def sanitize_filename(name: str) -> str:
+    return re.sub(r'[^\w\-_\. ]', '_', name)

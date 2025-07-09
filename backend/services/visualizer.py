@@ -1,36 +1,40 @@
-import matplotlib
-matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import io
 import base64
 
-def plot_chart(chart_data):
-    chart_type = chart_data.get("type", "line")
-    x = chart_data.get("x", [])
-    y = chart_data.get("y", [])
-    title = chart_data.get("title", "MemoryGPT Chart")
-    xlabel = chart_data.get("xlabel", "")
-    ylabel = chart_data.get("ylabel", "")
+# 🔹 Generates a base64 image from a chart
+def plot_chart(data: dict) -> str:
+    """
+    Plot a simple chart from structured data.
 
-    fig, ax = plt.subplots()
-    
-    if chart_type == "line":
-        ax.plot(x, y, marker='o')
-    elif chart_type == "bar":
-        ax.bar(x, y)
-    elif chart_type == "scatter":
-        ax.scatter(x, y)
-    else:
-        raise ValueError("Unsupported chart type")
+    Expected format:
+    {
+        "x": ["Jan", "Feb", "Mar"],
+        "y": [100, 150, 90],
+        "title": "Monthly Sales",
+        "xlabel": "Month",
+        "ylabel": "Revenue"
+    }
+    """
+    x = data.get("x", [])
+    y = data.get("y", [])
 
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    fig.tight_layout()
+    if not x or not y:
+        return ""
 
-    img = io.BytesIO()
-    plt.savefig(img, format="png")
-    img.seek(0)
-    base64_img = base64.b64encode(img.read()).decode("utf-8")
-    plt.close(fig)
-    return base64_img
+    plt.figure(figsize=(8, 4))
+    plt.plot(x, y, marker='o', linestyle='-', color='skyblue')
+    plt.title(data.get("title", "Chart"))
+    plt.xlabel(data.get("xlabel", "X-axis"))
+    plt.ylabel(data.get("ylabel", "Y-axis"))
+    plt.tight_layout()
+
+    # Save chart to buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    plt.close()
+
+    # Encode image as base64 string
+    image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+    return image_base64

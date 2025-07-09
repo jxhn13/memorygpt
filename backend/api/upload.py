@@ -59,7 +59,8 @@ def upload_files():
         if not all_chunks:
             return jsonify({"error": "❌ No valid document chunks to embed."}), 400
 
-        embed_and_store(all_chunks, metadata={})
+        embed_and_store(all_chunks, metadata={"source": filename})
+
 
         return jsonify({
             "message": f"✅ {len(uploaded_files_info)} file(s) uploaded and embedded successfully.",
