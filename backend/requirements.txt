@@ -16,3 +16,4 @@ html2text
 langchain-community
 matplotlib
 waitress
+keybert
