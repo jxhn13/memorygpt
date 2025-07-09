@@ -137,18 +137,6 @@ This project is licensed under the [MIT License](LICENSE).
 
 ````
 
----
 
-### 📌 To Publish the README:
 
-1. Save this content as `README.md` inside your GitHub repo root (`memorygpt/`).
-2. Run:
-   ```bash
-   git add README.md
-   git commit -m "📝 Add README with setup and deployment instructions"
-   git push origin main
-````
 
----
-
-Would you like me to auto-generate a `requirements.txt` from your installed packages or include screenshots/gifs in the README?
